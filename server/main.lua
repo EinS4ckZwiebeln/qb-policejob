@@ -923,6 +923,8 @@ end)
 
 RegisterNetEvent('police:server:Impound', function(plate, fullImpound, price, body, engine, fuel)
     local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player and Player.PlayerData.job.type ~= 'leo' then return end
     price = price and price or 0
     if IsVehicleOwned(plate) then
         if not fullImpound then
