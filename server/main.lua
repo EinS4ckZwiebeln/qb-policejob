@@ -12,19 +12,22 @@ local updatingCops = false
 local function UpdateBlips()
     local dutyPlayers = {}
     local players = QBCore.Functions.GetQBPlayers()
-    for _, v in pairs(players) do
-        if v and (v.PlayerData.job.type == 'leo' or v.PlayerData.job.type == 'ems') and v.PlayerData.job.onduty then
-            local coords = GetEntityCoords(GetPlayerPed(v.PlayerData.source))
-            local heading = GetEntityHeading(GetPlayerPed(v.PlayerData.source))
+    for _, player in pairs(players) do
+        local PlayerData = player.PlayerData
+        local job = PlayerData.job
+        if (job.type == 'leo' or job.type == 'ems') and job.onduty then
+            local source = PlayerData.source
+            local ped = GetPlayerPed(source)
+            local coords = GetEntityCoords(ped)
             dutyPlayers[#dutyPlayers + 1] = {
-                source = v.PlayerData.source,
-                label = v.PlayerData.metadata['callsign'],
-                job = v.PlayerData.job.name,
+                source = source,
+                label = PlayerData.metadata['callsign'],
+                job = job.name,
                 location = {
                     x = coords.x,
                     y = coords.y,
                     z = coords.z,
-                    w = heading
+                    w = GetEntityHeading(ped)
                 }
             }
         end
