@@ -586,34 +586,18 @@ QBCore.Functions.CreateCallback('police:GetDutyPlayers', function(_, cb)
 end)
 
 QBCore.Functions.CreateCallback('police:GetImpoundedVehicles', function(_, cb)
-    local vehicles = {}
     MySQL.query('SELECT * FROM player_vehicles WHERE state = ?', { 2 }, function(result)
-        if result[1] then
-            vehicles = result
-        end
-        cb(vehicles)
+        if result[1] then cb(result) end
+        cb({})
     end)
 end)
 
 QBCore.Functions.CreateCallback('police:IsPlateFlagged', function(_, cb, plate)
-    local retval = false
-    if Plates and Plates[plate] then
-        if Plates[plate].isflagged then
-            retval = true
-        end
-    end
-    cb(retval)
+    cb(Plates and Plates[plate] and Plates[plate].isflagged)
 end)
 
 QBCore.Functions.CreateCallback('police:GetCops', function(_, cb)
-    local amount = 0
-    local players = QBCore.Functions.GetQBPlayers()
-    for _, v in pairs(players) do
-        if v and v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
-            amount = amount + 1
-        end
-    end
-    cb(amount)
+    cb(QBCore.Functions.GetDutyCount('leo'))
 end)
 
 QBCore.Functions.CreateCallback('police:server:IsPoliceForcePresent', function(_, cb)
@@ -1016,15 +1000,9 @@ RegisterNetEvent('evidence:server:CreateCasing', function(weapon, coords)
 end)
 
 RegisterNetEvent('police:server:UpdateCurrentCops', function()
-    local amount = 0
-    local players = QBCore.Functions.GetQBPlayers()
     if updatingCops then return end
     updatingCops = true
-    for _, v in pairs(players) do
-        if v and v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
-            amount += 1
-        end
-    end
+    local amount = QBCore.Functions.GetDutyCount('leo')
     TriggerClientEvent('police:SetCopCount', -1, amount)
     updatingCops = false
 end)
